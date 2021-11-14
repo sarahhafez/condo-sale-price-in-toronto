@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[1]:
 
 
 import requests
@@ -13,23 +13,22 @@ import json
 from bs4 import BeautifulSoup
 
 
-# In[12]:
+# In[3]:
 
 
-listing_path = "ListingLinks-3.csv"
+listing_path = "~/data/ListingLinks.csv"
 listing_df = pd.read_csv(listing_path)
-full_urls = list(listing_df["Link"])
-full_price = list(listing_df["Price"])
+listing_df = listing_df.drop_duplicates(subset=['Link', 'Price'])
+urls = list(listing_df["Link"])
+price = list(listing_df["Price"])
 condos_data = []
 all_amenity_lst = []
 print(len(full_urls), len(full_price))
 
 
-# In[13]:
+# In[10]:
 
 
-urls = full_urls[2000:3000]
-price = full_price[2000:3000]
 with requests.Session() as s:
     for j in range(len(urls)):
         url = urls[j]
@@ -40,7 +39,6 @@ with requests.Session() as s:
                 "referer":'https://condos.ca/',
             }).text, 'html.parser')
 
-            tree = etree.HTML(str(soup))
             address = soup.find_all("h1", {"class": "styles___Title-sc-ka5njm-6 ccBSix"})[0].text
             tax_block = soup.find_all("div", {"class": "styles___RightBlock-sc-ka5njm-14 gGsbwf"})[0]
             tax_2021 = tax_block.find_all("span", {"class":"styles___BlurCont-sc-qq1hs5-0"})
@@ -48,6 +46,7 @@ with requests.Session() as s:
                 tax_2021 = tax_2021[0].text
             else:
                 tax_2021 = "NA"
+            
             basic_info = soup.find_all("div", {"class": 
                                                "styles___NoMarginRow-sc-146e13k-1 styles___ListingDetailKeyContainer-sc-14y6qt-0 gkHXVW ftRoLh ZtOZv"})
             info_lst = basic_info[0].find_all("div", {"class": 
@@ -58,8 +57,6 @@ with requests.Session() as s:
             age_of_building = "NA"
             outdoor_space = "NA"
             locker = "NA"
-
-
             for info in info_lst:
                 label_value_pair = info.find_all("div")
                 label = label_value_pair[0].text
@@ -135,7 +132,7 @@ with requests.Session() as s:
             condos_data.append(condo_data)
 
 
-# In[14]:
+# In[59]:
 
 
 full_df = pd.DataFrame(condos_data)
@@ -146,28 +143,16 @@ full_df.columns = ["address", "price", "num_of_bed","num_of_bath", "num_of_parki
 full_df.head()
 
 
-# In[15]:
+# In[32]:
 
 
 all_amenity_set = set(all_amenity_lst)
 print(all_amenity_set)
 
 
-# In[16]:
+# In[61]:
 
 
-file_name = "condos_info.csv"
+file_name = "~/data/condos_info.csv"
 full_df.to_csv(file_name, encoding='utf-8', index=False)
-
-
-# In[18]:
-
-
-print([1,3,2,4,3][3:])
-
-
-# In[ ]:
-
-
-
 
