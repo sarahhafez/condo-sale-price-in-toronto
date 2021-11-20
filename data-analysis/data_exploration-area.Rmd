@@ -1,0 +1,182 @@
+---
+title: "data_exploration_area"
+author: "Sarah Hafez"
+date: "19/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## d
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(magrittr)
+library(reshape2)
+library(forcats)
+library(ggridges)
+```
+
+```{r}
+#assumes that the working directory is the project folder
+demographics <- read.csv("../data/demographics.csv")
+condos <- read.csv("../data/clean_condos_info.csv")
+```
+
+```{r}
+
+c <- rep(0,2319)
+
+for (i in 1:2319) {
+  c[i] <- length(str_split(condos$amenity_lst[[i]] ,",")[[1]])
+}
+
+condos %<>%
+  mutate(price = as.integer(price)) %>%
+  mutate(location_area=gsub("-|[.]", "", tolower(location_area))) %>%
+  mutate(location_area=gsub(" ", "", tolower(location_area))) %>%
+  mutate(num_amenities=c)%>%
+  filter(!is.na(price)) 
+ # mutate(location_area=gsub(" ", "-", tolower(location_area))) 
+
+```
+
+```{r}
+print(colnames(condos))
+unique(con)
+```
+
+**Plot 1: Area Price Distribution**
+
+```{r}
+condos %>%
+  mutate(location_area = fct_reorder(location_area,price,.fun='median')) %>%
+  #ggplot(aes(x=reorder(location_area, price), y=price, fill=location_area)) +
+  ggplot(aes(x=reorder(location_area, price), fill=location_area))+  geom_histogram(stat = "count") +
+  stat_count(aes(label=..count..)) +
+  theme_classic()+
+  geom_text(stat='count', aes(label=..count..), vjust=-1)+
+  theme(legend.position="none",axis.text.x = element_text(size = 8, angle = 90, vjust = 0.5, hjust=1)) +
+  xlab("")
+    
+```
+
+```{r}
+#boxplots are o
+
+
+condos %>%
+  filter(!is.na(location_area) & !is.na(price)) %>%
+  mutate(location_area = fct_reorder(location_area,price,.fun='median')) %>%
+  ggplot(aes(x=reorder(location_area, price), y=price, fill=location_area)) +
+  #geom_boxplot() +
+  geom_boxplot(outlier.shape = NA) +
+  scale_y_continuous(limits = c(200000, 1500000)) +
+  theme(legend.position="none",axis.text.x = element_text(size = 8, angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Basic boxplot") +
+  xlab("")
+
+```
+
+```{r}
+condos %>%
+  filter(!is.na(location_area) & !is.na(price)) %>%
+  mutate(location_area = fct_reorder(location_area,price, .fun='median')) %>%
+  ggplot(aes(x=reorder(location_area, price), y=num_amenities, fill=location_area)) +
+  geom_boxplot(outlier.shape = NA) +
+  theme(legend.position="none",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Basic boxplot") +
+  xlab("")
+
+```
+
+```{r}
+condos %>%
+  filter(!is.na(location_area) & !is.na(price)) %>%
+  mutate(location_area = fct_reorder(location_area,price, .fun='median')) %>%
+  ggplot(aes(x=reorder(location_area, price), y=actual_size, fill=location_area)) +
+  geom_boxplot(outlier.shape = NA) +
+  theme(legend.position="none",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  scale_y_continuous(limits = c(0, 2000)) +
+  ggtitle("Basic boxplot") +
+  xlab("")
+
+```
+
+```{r}
+
+#showing the household avg income and individual income per area 
+df1 <- data.frame(demographics$avg_household_income, demographics$avg_individual_income, demographics$area)
+
+
+df2 <- melt(df1, id.vars='demographics.area')
+
+
+df2 %>%
+  ggplot(aes(x=demographics.area, y=value, fill=variable)) +
+    geom_bar(stat='identity', position='dodge') +
+   # scale_x_discrete(labels = c(1:22)) +
+    theme(legend.position="none",axis.text.x = element_text(size = 8, angle = 90, vjust = 0.5, hjust=1)) 
+  
+```
+
+```{r}
+#showing the household avg income and individual income per area 
+df1 <- data.frame(demographics$owners, demographics$renters, demographics$area)
+
+
+df2 <- melt(df1, id.vars='demographics.area')
+
+df2 %>%
+  ggplot(aes(x=demographics.area, y=value, fill=variable)) +
+    geom_bar(stat='identity', position='stack') +
+   # scale_x_discrete(labels = c(1:22)) +
+    theme(axis.text.x = element_text(size = 8, angle = 90, vjust = 0.5, hjust=1)) 
+```
+
+```{r}
+condos %>%
+  ggplot(aes(x=price)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="lightblue") +
+  #geom_density(alpha=.4, colour="plum", fill="plum", adjust=1.5) +
+  theme_classic() +
+  scale_y_continuous(labels=scales::percent) +
+  scale_x_continuous(limits = c(0, 3000000)) +
+  xlab("Condo Prices")
+```
+
+```{r}
+condos %>%
+  filter(!is.na(location_area)) %>%
+  ggplot(aes(x = price, y = location_area, fill = location_area)) +
+  geom_density_ridges() +
+  theme_ridges() + 
+  scale_x_continuous(limits = c(0, 1500000)) +
+  theme(legend.position = "none")
+```
+
+```{r}
+condos %>%
+  filter(!is.na(location_area) & !is.na(actual_size)) %>%
+  ggplot(aes(x = actual_size, y = location_area, fill = location_area)) +
+  geom_density_ridges() +
+  theme_ridges() + 
+  scale_x_continuous(limits = c(0, 2000)) +
+  theme(legend.position = "none")
+```
+
+```{r}
+condos %>%
+  filter(location_area=="kensingtonmarket") %>%
+  view()
+```
+
+```{r}
+
+condos %>%
+  group_by(location_area) %>%
+  filter(!is.na(include_concierge)) %>%
+  dplyr::summarise(s=sum(include_concierge), count=n(), percent=sum(include_concierge)/n())
+```
