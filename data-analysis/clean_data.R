@@ -4,8 +4,8 @@ library(tidyr)
 library(plyr)
 
 # Step0: Read csv file
-condo.path = "Downloads/STA2453/Project1/condo-sale-price-in-toronto/data/condos_info.csv"
-condos <- read_csv(condo.path, show_col_types = FALSE)
+condo.path = "../data/condos_info.csv"
+condos <- read_csv(condo.path)
 
 # Actual size : null & 0 -> NA
 size.lst <- condos$actual_size
@@ -105,3 +105,16 @@ condos <- condos %>%
          include_public_transit = as.integer(as.logical(grepl("'Public Transit'", amenity_lst, fixed=TRUE))),
          include_bbq_permitted = as.integer(as.logical(grepl("'BBQ Permitted'", amenity_lst, fixed=TRUE))),
          include_indoor_pool = as.integer(as.logical(grepl("'Indoor Pool'", amenity_lst, fixed=TRUE))))
+
+# Drop possession
+condos$possession <- NULL
+
+# Clean age of building
+age.lst <- condos$age_of_building
+age.lst[age.lst=="New"] = "0"
+condos$age_of_building <- age.lst
+
+condos <- condos %>%
+  mutate(age_of_building = gsub(" years old", "", age_of_building))
+
+condos %>% write_csv("../data/clean_condos_info.csv")
