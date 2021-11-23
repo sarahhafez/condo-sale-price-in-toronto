@@ -21,31 +21,14 @@ library(ggridges)
 
 ```{r}
 #assumes that the working directory is the project folder
-demographics <- read.csv("../data/demographics.csv")
-condos <- read.csv("../data/clean_condos_info.csv")
-```
-
-```{r}
-
-c <- rep(0,2319)
-
-for (i in 1:2319) {
-  c[i] <- length(str_split(condos$amenity_lst[[i]] ,",")[[1]])
-}
-
-condos %<>%
-  mutate(price = as.integer(price)) %>%
-  mutate(location_area=gsub("-|[.]", "", tolower(location_area))) %>%
-  mutate(location_area=gsub(" ", "", tolower(location_area))) %>%
-  mutate(num_amenities=c)%>%
-  filter(!is.na(price)) 
- # mutate(location_area=gsub(" ", "-", tolower(location_area))) 
-
+setwd("/Users/shafez/Desktop/Data Science Methods/condo-sale-price-in-toronto")
+demographics <- read.csv("data/demographics.csv")
+condos <- read.csv("data/clean_condos_info.csv")
 ```
 
 ```{r}
 print(colnames(condos))
-unique(con)
+#unique(con)
 ```
 
 **Plot 1: Area Price Distribution**
