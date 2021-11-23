@@ -110,6 +110,9 @@ condos <- condos %>%
 # Drop possession
 condos$possession <- NULL
 
+# Add num of amenities
+condos$num_amenities <- lengths(as.list(strsplit(substring(condos$amenity_lst, 2, nchar(condos$amenity_lst)-1), ", ")))
+
 # Clean age of building
 age.lst <- condos$age_of_building
 age.lst[age.lst=="New"] = "0"
