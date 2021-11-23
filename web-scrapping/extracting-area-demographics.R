@@ -2,7 +2,8 @@ library(tidyverse)
 library(magrittr)
 library(jsonlite)
 
-area_and_url <- read.csv("area-url.csv")
+
+area_and_url <- read.csv("data/area-url.csv")
 
 extract_area <- function (area_name, link) {
   
@@ -36,5 +37,5 @@ for(i in 2:22) {
   full_table <- rbind(full_table,new_row) 
 }
 
-write.csv(full_table, "demographics.csv")
+write.csv(full_table, "data/demographics.csv")
 

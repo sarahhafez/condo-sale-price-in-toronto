@@ -2,9 +2,10 @@ library(tidyverse)
 library(pander)
 library(tidyr)
 library(plyr)
+library(magrittr)
 
 # Step0: Read csv file
-condo.path = "../data/condos_info.csv"
+condo.path = "data/condos_info.csv"
 condos <- read_csv(condo.path)
 
 # Actual size : null & 0 -> NA
@@ -114,7 +115,24 @@ age.lst <- condos$age_of_building
 age.lst[age.lst=="New"] = "0"
 condos$age_of_building <- age.lst
 
-condos <- condos %>%
+condos %<>%
   mutate(age_of_building = gsub(" years old", "", age_of_building))
 
-condos %>% write_csv("../data/clean_condos_info.csv")
+#Make area name consistent with demographics file
+
+condos %<>%
+  mutate(location_area=gsub("-|[.]", "", tolower(location_area))) %>%
+  mutate(location_area=gsub(" ", "", tolower(location_area)))
+
+#add number of amenities 
+
+c <- rep(0,2319)
+
+for (i in 1:2319) {
+  c[i] <- length(str_split(condos$amenity_lst[[i]] ,",")[[1]])
+}
+
+condos %<>%
+  mutate(num_amenities=c)
+  
+condos %>% write_csv("data/clean_condos_info.csv")

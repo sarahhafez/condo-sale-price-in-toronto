@@ -50,7 +50,7 @@ unique(con)
 
 **Plot 1: Area Price Distribution**
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 condos %>%
   mutate(location_area = fct_reorder(location_area,price,.fun='median')) %>%
   #ggplot(aes(x=reorder(location_area, price), y=price, fill=location_area)) +
@@ -137,14 +137,17 @@ df2 %>%
 ```
 
 ```{r}
-condos %>%
-  ggplot(aes(x=price)) +
-  geom_histogram(aes(y=..density..), colour="black", fill="lightblue") +
+
+quantile(condos$price, 0.75)
+
+#condos %>%
+  #ggplot(aes(x=price)) +
+  #geom_histogram(aes(y=..density..), colour="black", fill="lightblue") +
   #geom_density(alpha=.4, colour="plum", fill="plum", adjust=1.5) +
-  theme_classic() +
-  scale_y_continuous(labels=scales::percent) +
-  scale_x_continuous(limits = c(0, 3000000)) +
-  xlab("Condo Prices")
+  #theme_classic() +
+ # scale_y_continuous(labels=scales::percent) +
+  #scale_x_continuous(limits = c(0, 3000000)) +
+  #xlab("Condo Prices")
 ```
 
 ```{r}
