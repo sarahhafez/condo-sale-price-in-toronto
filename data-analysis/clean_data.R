@@ -5,7 +5,7 @@ library(plyr)
 library(magrittr)
 
 # Step0: Read csv file
-condo.path = "data/condos_info.csv"
+condo.path = "../data/condos_info.csv"
 condos <- read_csv(condo.path)
 
 # Actual size : null & 0 -> NA
@@ -128,4 +128,4 @@ condos %<>%
   mutate(location_area=gsub(" ", "", tolower(location_area)))
 
   
-condos %>% write_csv("data/clean_condos_info.csv")
+condos %>% write_csv("../data/clean_condos_info.csv")
