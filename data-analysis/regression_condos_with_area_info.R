@@ -95,6 +95,12 @@ sqm2 <- lm(formula = price_per_sqm ~ ., data2)
 backward_selection_4 <- step(sqm2)
 summary(backward_selection_4)
 
+areas_ordered <- condos %>%
+  group_by(area) %>%
+  dplyr::summarise(mean = mean(price_per_sqm, na.rm=TRUE)) %>%
+  arrange(desc(mean)) %>%
+  .[['area']]
+
 expensive_area_condos <- all.info %>%
   filter(area %in% areas_ordered[1:5]) %>%
   mutate(exposure_EW = as.integer(as.logical(exposure=="EW")))
